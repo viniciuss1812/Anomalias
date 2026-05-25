@@ -53,6 +53,34 @@ class TransacaoService:
                 transacao
             )
         )
+    
+    def atualizar_status_fraude(
+        self,
+        id: int,
+        is_fraude: bool
+    ):
+
+        return (
+            self.repository
+            .update_status_fraude(
+                id,
+                is_fraude
+            )
+        )
+
+    # =====================================================
+    # DELETAR TRANSAÇÃO
+    # =====================================================
+
+    def deletar_transacao(
+        self,
+        id: int
+    ):
+
+        return (
+            self.repository
+            .delete_transacao(id)
+        )
 
     # =====================================================
     # FILTROS

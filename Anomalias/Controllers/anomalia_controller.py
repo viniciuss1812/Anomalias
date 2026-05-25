@@ -18,11 +18,11 @@ from Services.localizacao_service import (
 )
 
 from Services.gaussiana_service import (
-    Gaussiana
+    GaussianaService
 )
 
 from Services.zscore_service import (
-    ZScore
+    ZScoreService
 )
 
 router = APIRouter(
@@ -42,12 +42,12 @@ anomalias_service = AnomaliasService()
 
 estatistica_service = (AnomaliasEstatisticaService())
   
-gaussiana_service = Gaussiana()
+gaussiana_service = GaussianaService()
 
-zscore_service = ZScore()
+zscore_service = ZScoreService()
 
 
-
+#criar o delete. update julgamento 
 
 @router.get("/transacoes")
 def listar_transacoes():
@@ -55,6 +55,12 @@ def listar_transacoes():
     return transacao_service.listar_transacoes()
 
 
+@router.get("/transacoes/contas")
+def listar_contas():
+
+    return transacao_service.listar_contas()
+
+#errado
 @router.get("/transacoes/{conta}")
 def buscar_transacao_por_conta(
     conta: str
@@ -65,12 +71,6 @@ def buscar_transacao_por_conta(
     )
 
 
-@router.get("/transacoes/contas")
-def listar_contas():
-
-    return transacao_service.listar_contas()
-
-
 @router.post("/transacoes")
 def criar_transacao(
     transacao: Transacao
@@ -79,6 +79,38 @@ def criar_transacao(
     return transacao_service.criar_transacao(
         transacao
     )
+
+
+
+@router.put("/transacoes/{id}/fraude")
+def atualizar_status_fraude(
+    id: int,
+    is_fraude: bool
+):
+
+    return (
+        transacao_service
+        .atualizar_status_fraude(
+            id,
+            is_fraude
+        )
+    )
+
+
+# =========================================================
+# DELETAR TRANSAÇÃO
+# =========================================================
+
+@router.delete("/transacoes/{id}")
+def deletar_transacao(
+    id: int
+):
+
+    return (
+        transacao_service
+        .deletar_transacao(id)
+    )
+
 
 # =========================================================
 # FILTROS
@@ -124,7 +156,7 @@ def buscar_transacoes(
         data_fim=data_fim
     )
 
-
+#errado
 @router.get("/zscore/{conta}")
 def calcular_zscore(
     conta: str
@@ -135,7 +167,7 @@ def calcular_zscore(
         .zscore_por_conta(conta)
     )
 
-
+#errado
 @router.get("/gaussiana/{conta}")
 def gaussiana(
     conta: str

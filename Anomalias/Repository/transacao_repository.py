@@ -30,30 +30,37 @@ class TransacaoRepository:
             "transacoes": dados
         }
 
+
     def get_transacao_por_conta(self, conta: str):
 
-        conn = get_connection()
-        cursor = conn.cursor()
+       conn = get_connection()
+       cursor = conn.cursor()
 
-        cursor.execute(
-            "SELECT * FROM transacoes WHERE conta = ?",
+       cursor.execute(
+           "SELECT * FROM transacoes WHERE conta = ?",
             (conta,)
         )
 
-        row = cursor.fetchone()
+       rows = cursor.fetchall()
 
-        if row:
-            colunas = [col[0] for col in cursor.description]
+       if rows:
 
-            resultado = dict(zip(colunas, row))
+           colunas = [ col[0] for col in cursor.description]
 
-            conn.close()
+           resultados = [ dict(zip(colunas, row)) for row in rows]
 
-            return resultado
+           conn.close()
 
-        conn.close()
-
-        return {"erro": "Transação não encontrada"}
+           return {
+            "conta": conta,
+            "total_transacoes": len(resultados),
+            "transacoes": resultados
+        }
+        
+       conn.close()
+       return {
+        "erro": "Transação não encontrada"
+        }
 
     def get_contas(self):
 
@@ -72,6 +79,7 @@ class TransacaoRepository:
             "mensagem": "Retornando as 100 primeiras contas",
             "contas": contas
         }
+
 
     def inserir_transacao(self, transacao):
 
@@ -141,10 +149,95 @@ class TransacaoRepository:
             conn.close()
 
     # =========================================================
-    # QUERY DINÂMICA
-    # =========================================================
+# UPDATE STATUS FRAUDE
+# =========================================================
 
-    def query_transacoes(
+def update_status_fraude(
+    self,
+    id: int,
+    is_fraude: bool
+):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute(
+            """
+            UPDATE transacoes
+            SET is_fraude = ?
+            WHERE id = ?
+            """,
+            (
+                int(is_fraude),
+                id
+            )
+        )
+
+        conn.commit()
+
+        return {
+            "mensagem":
+            "Status de fraude atualizado com sucesso"
+        }
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return {
+            "erro": str(e)
+        }
+
+    finally:
+
+        conn.close()
+
+
+def delete_transacao(
+    self,
+    id: int
+):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute(
+            """
+            DELETE FROM transacoes
+            WHERE id = ?
+            """,
+            (id,)
+        )
+
+        conn.commit()
+
+        return {
+            "mensagem":
+            "Transação deletada com sucesso"
+        }
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return {
+            "erro": str(e)
+        }
+
+    finally:
+
+        conn.close()
+
+
+    
+
+def query_transacoes(
         self,
         categoria=None,
         cidade=None,
@@ -213,7 +306,7 @@ class TransacaoRepository:
     
 
 
-    def buscar_valores_por_conta(
+def buscar_valores_por_conta(
         self,
         conta: str
     ):
@@ -242,7 +335,7 @@ class TransacaoRepository:
 
 
 
-    def buscar_localizacao_por_conta(
+def buscar_localizacao_por_conta(
         self,
         conta: str
     ):
@@ -273,7 +366,7 @@ class TransacaoRepository:
     # GEO IP
     # =====================================================
 
-    def buscar_ips_por_conta(
+def buscar_ips_por_conta(
         self,
         conta: str
     ):
@@ -300,7 +393,7 @@ class TransacaoRepository:
     # GEO VELOCIDADE
     # =====================================================
 
-    def buscar_velocidade_geografica(
+def buscar_velocidade_geografica(
         self,
         conta: str
     ):
@@ -332,7 +425,7 @@ class TransacaoRepository:
     # ESTATÍSTICAS
     # =====================================================
 
-    def buscar_cidades_mais_anomalas(self):
+def buscar_cidades_mais_anomalas(self):
 
         conn = get_connection()
 
@@ -354,7 +447,7 @@ class TransacaoRepository:
 
         return dados
 
-    def buscar_numero_de_fraudes(self):
+def buscar_numero_de_fraudes(self):
 
         conn = get_connection()
 
@@ -376,7 +469,7 @@ class TransacaoRepository:
 
         return dados
 
-    def buscar_fraudes_por_tipo(self):
+def buscar_fraudes_por_tipo(self):
 
         conn = get_connection()
 
@@ -398,7 +491,7 @@ class TransacaoRepository:
 
         return dados
 
-    def buscar_horario_fraudes(self):
+def buscar_horario_fraudes(self):
 
         conn = get_connection()
 
@@ -420,7 +513,7 @@ class TransacaoRepository:
 
         return dados
 
-    def buscar_numero_de_tentativas(self):
+def buscar_numero_de_tentativas(self):
 
         conn = get_connection()
 
